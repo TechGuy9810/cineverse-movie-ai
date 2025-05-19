@@ -65,12 +65,12 @@ const FilterPanel = ({ onFilterChange, onRatingTypeChange }: FilterPanelProps) =
       <div className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="genre">Genre</Label>
-          <Select value={genre || ""} onValueChange={setGenre}>
+          <Select value={genre || undefined} onValueChange={setGenre}>
             <SelectTrigger id="genre">
               <SelectValue placeholder="Select genre" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Genres</SelectItem>
+              <SelectItem value="all">All Genres</SelectItem>
               {genres.map((genre) => (
                 <SelectItem key={genre.id} value={genre.id.toString()}>
                   {genre.name}
@@ -82,12 +82,12 @@ const FilterPanel = ({ onFilterChange, onRatingTypeChange }: FilterPanelProps) =
 
         <div className="space-y-2">
           <Label htmlFor="year">Release Year</Label>
-          <Select value={year || ""} onValueChange={setYear}>
+          <Select value={year || undefined} onValueChange={setYear}>
             <SelectTrigger id="year">
               <SelectValue placeholder="Select year" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Years</SelectItem>
+              <SelectItem value="all">All Years</SelectItem>
               {years.map((year) => (
                 <SelectItem key={year} value={year.toString()}>
                   {year}
@@ -131,8 +131,8 @@ const FilterPanel = ({ onFilterChange, onRatingTypeChange }: FilterPanelProps) =
         <div className="space-y-2">
           <Label htmlFor="sort">Sort By</Label>
           <div className="flex gap-2">
-            <Select value={sortBy} onValueChange={setSortBy} className="flex-1">
-              <SelectTrigger id="sort">
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger id="sort" className="flex-1">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
