@@ -91,23 +91,23 @@ const FilterPanel = ({ onFilterChange, onRatingTypeChange }: FilterPanelProps) =
             onValueChange={setMood}
             className="flex flex-wrap gap-2"
           >
-            {moods.map((mood) => (
-              <div key={mood.id} className="flex items-center space-x-2">
+            {moods.map((moodItem) => (
+              <div key={moodItem.id} className="flex items-center space-x-2">
                 <RadioGroupItem
-                  value={mood.id}
-                  id={`mood-${mood.id}`}
+                  value={moodItem.id}
+                  id={`mood-${moodItem.id}`}
                   className="sr-only"
                 />
                 <Label
-                  htmlFor={`mood-${mood.id}`}
+                  htmlFor={`mood-${moodItem.id}`}
                   className={`flex items-center justify-center p-2 rounded-md cursor-pointer border ${
-                    mood === mood.id
+                    mood === moodItem.id
                       ? "bg-cinema-accent text-white border-cinema-accent"
                       : "bg-cinema-card hover:bg-slate-100 border-cinema-border"
                   }`}
                 >
-                  <span className="mr-1 text-lg">{mood.emoji}</span>
-                  <span>{mood.name}</span>
+                  <span className="mr-1 text-lg">{moodItem.emoji}</span>
+                  <span>{moodItem.name}</span>
                 </Label>
               </div>
             ))}
