@@ -7,11 +7,21 @@ import { genres, yearRange } from "@/data/mockMovies";
 import { MovieFilter, RatingType } from "@/types/movie";
 import { FilterIcon } from "lucide-react";
 import { useState } from "react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { toast } from "@/hooks/use-toast";
 
 interface FilterPanelProps {
   onFilterChange: (filters: MovieFilter) => void;
   onRatingTypeChange: (type: RatingType) => void;
 }
+
+const moods = [
+  { id: "happy", name: "Happy", emoji: "😊" },
+  { id: "crying", name: "Crying", emoji: "😢" },
+  { id: "excited", name: "Excited", emoji: "🤩" },
+  { id: "dark", name: "Dark", emoji: "🌑" },
+  { id: "feel-good", name: "Feel-good", emoji: "🥰" },
+];
 
 const FilterPanel = ({ onFilterChange, onRatingTypeChange }: FilterPanelProps) => {
   const [genre, setGenre] = useState<string | null>(null);
@@ -20,16 +30,25 @@ const FilterPanel = ({ onFilterChange, onRatingTypeChange }: FilterPanelProps) =
   const [sortBy, setSortBy] = useState<string>("popularity");
   const [sortDirection, setSortDirection] = useState<string>("desc");
   const [ratingType, setRatingType] = useState<RatingType>("both");
+  const [mood, setMood] = useState<string | null>(null);
 
   const handleFilterApply = () => {
     onFilterChange({
-      genre: genre ? parseInt(genre) : null,
-      year: year ? parseInt(year) : null,
+      genre: genre && genre !== "all" ? parseInt(genre) : null,
+      year: year && year !== "all" ? parseInt(year) : null,
       rating: rating,
       sortBy: sortBy as "popularity" | "vote_average" | "release_date",
-      sortDirection: sortDirection as "asc" | "desc"
+      sortDirection: sortDirection as "asc" | "desc",
+      mood: mood
     });
     onRatingTypeChange(ratingType);
+    
+    if (mood) {
+      toast({
+        title: "Mood Selected",
+        description: `Finding movies to match your ${moods.find(m => m.id === mood)?.name} mood`,
+      });
+    }
   };
 
   const handleReset = () => {
@@ -39,13 +58,15 @@ const FilterPanel = ({ onFilterChange, onRatingTypeChange }: FilterPanelProps) =
     setSortBy("popularity");
     setSortDirection("desc");
     setRatingType("both");
+    setMood(null);
     
     onFilterChange({
       genre: null,
       year: null,
       rating: [0, 10],
       sortBy: "popularity",
-      sortDirection: "desc"
+      sortDirection: "desc",
+      mood: null
     });
     onRatingTypeChange("both");
   };
@@ -63,6 +84,36 @@ const FilterPanel = ({ onFilterChange, onRatingTypeChange }: FilterPanelProps) =
       </div>
 
       <div className="space-y-4">
+        <div className="space-y-3">
+          <Label>Mood</Label>
+          <RadioGroup
+            value={mood || ""}
+            onValueChange={setMood}
+            className="flex flex-wrap gap-2"
+          >
+            {moods.map((mood) => (
+              <div key={mood.id} className="flex items-center space-x-2">
+                <RadioGroupItem
+                  value={mood.id}
+                  id={`mood-${mood.id}`}
+                  className="sr-only"
+                />
+                <Label
+                  htmlFor={`mood-${mood.id}`}
+                  className={`flex items-center justify-center p-2 rounded-md cursor-pointer border ${
+                    mood === mood.id
+                      ? "bg-cinema-accent text-white border-cinema-accent"
+                      : "bg-cinema-card hover:bg-slate-100 border-cinema-border"
+                  }`}
+                >
+                  <span className="mr-1 text-lg">{mood.emoji}</span>
+                  <span>{mood.name}</span>
+                </Label>
+              </div>
+            ))}
+          </RadioGroup>
+        </div>
+
         <div className="space-y-2">
           <Label htmlFor="genre">Genre</Label>
           <Select value={genre || undefined} onValueChange={setGenre}>

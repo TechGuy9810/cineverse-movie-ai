@@ -12,6 +12,7 @@ export interface Movie {
   runtime: number;
   popularity: number;
   critic_score?: number;
+  mood?: string;
 }
 
 export interface Genre {
@@ -25,6 +26,7 @@ export interface MovieFilter {
   rating?: [number, number];
   sortBy?: 'popularity' | 'vote_average' | 'release_date';
   sortDirection?: 'asc' | 'desc';
+  mood?: string | null;
 }
 
 export type RatingType = 'user' | 'critic' | 'both';
