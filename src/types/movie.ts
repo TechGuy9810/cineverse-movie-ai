@@ -26,7 +26,7 @@ export interface MovieFilter {
   rating?: [number, number];
   sortBy?: 'popularity' | 'vote_average' | 'release_date';
   sortDirection?: 'asc' | 'desc';
-  mood?: string | null;
+  moods?: string[] | null;
 }
 
 export type RatingType = 'user' | 'critic' | 'both';

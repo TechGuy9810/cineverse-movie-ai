@@ -7,12 +7,13 @@ import { genres, yearRange } from "@/data/mockMovies";
 import { MovieFilter, RatingType } from "@/types/movie";
 import { FilterIcon } from "lucide-react";
 import { useState } from "react";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "@/hooks/use-toast";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 interface FilterPanelProps {
   onFilterChange: (filters: MovieFilter) => void;
   onRatingTypeChange: (type: RatingType) => void;
+  onMoodSelect: (moods: string[]) => void;
 }
 
 const moods = [
@@ -23,14 +24,14 @@ const moods = [
   { id: "feel-good", name: "Feel-good", emoji: "🥰" },
 ];
 
-const FilterPanel = ({ onFilterChange, onRatingTypeChange }: FilterPanelProps) => {
+const FilterPanel = ({ onFilterChange, onRatingTypeChange, onMoodSelect }: FilterPanelProps) => {
   const [genre, setGenre] = useState<string | null>(null);
   const [year, setYear] = useState<string | null>(null);
   const [rating, setRating] = useState<[number, number]>([0, 10]);
   const [sortBy, setSortBy] = useState<string>("popularity");
   const [sortDirection, setSortDirection] = useState<string>("desc");
   const [ratingType, setRatingType] = useState<RatingType>("both");
-  const [mood, setMood] = useState<string | null>(null);
+  const [selectedMoods, setSelectedMoods] = useState<string[]>([]);
 
   const handleFilterApply = () => {
     onFilterChange({
@@ -39,16 +40,23 @@ const FilterPanel = ({ onFilterChange, onRatingTypeChange }: FilterPanelProps) =
       rating: rating,
       sortBy: sortBy as "popularity" | "vote_average" | "release_date",
       sortDirection: sortDirection as "asc" | "desc",
-      mood: mood
+      moods: selectedMoods.length > 0 ? selectedMoods : null
     });
     onRatingTypeChange(ratingType);
     
-    if (mood) {
+    if (selectedMoods.length > 0) {
+      const moodNames = selectedMoods.map(id => 
+        moods.find(m => m.id === id)?.name
+      ).join(", ");
+      
       toast({
-        title: "Mood Selected",
-        description: `Finding movies to match your ${moods.find(m => m.id === mood)?.name} mood`,
+        title: "Moods Selected",
+        description: `Finding movies to match your mood: ${moodNames}`,
       });
     }
+    
+    // Send selected moods to parent component for search functionality
+    onMoodSelect(selectedMoods);
   };
 
   const handleReset = () => {
@@ -58,7 +66,7 @@ const FilterPanel = ({ onFilterChange, onRatingTypeChange }: FilterPanelProps) =
     setSortBy("popularity");
     setSortDirection("desc");
     setRatingType("both");
-    setMood(null);
+    setSelectedMoods([]);
     
     onFilterChange({
       genre: null,
@@ -66,15 +74,20 @@ const FilterPanel = ({ onFilterChange, onRatingTypeChange }: FilterPanelProps) =
       rating: [0, 10],
       sortBy: "popularity",
       sortDirection: "desc",
-      mood: null
+      moods: null
     });
     onRatingTypeChange("both");
+    onMoodSelect([]);
   };
 
   const years = Array.from(
     { length: yearRange[1] - yearRange[0] + 1 },
     (_, i) => yearRange[0] + i
   ).reverse();
+
+  const handleMoodsChange = (value: string[]) => {
+    setSelectedMoods(value);
+  };
 
   return (
     <div className="p-4 space-y-6 bg-cinema-card rounded-lg border border-cinema-border">
@@ -84,36 +97,6 @@ const FilterPanel = ({ onFilterChange, onRatingTypeChange }: FilterPanelProps) =
       </div>
 
       <div className="space-y-4">
-        <div className="space-y-3">
-          <Label>Mood</Label>
-          <RadioGroup
-            value={mood || ""}
-            onValueChange={setMood}
-            className="flex flex-wrap gap-2"
-          >
-            {moods.map((moodItem) => (
-              <div key={moodItem.id} className="flex items-center space-x-2">
-                <RadioGroupItem
-                  value={moodItem.id}
-                  id={`mood-${moodItem.id}`}
-                  className="sr-only"
-                />
-                <Label
-                  htmlFor={`mood-${moodItem.id}`}
-                  className={`flex items-center justify-center p-2 rounded-md cursor-pointer border ${
-                    mood === moodItem.id
-                      ? "bg-cinema-accent text-white border-cinema-accent"
-                      : "bg-cinema-card hover:bg-slate-100 border-cinema-border"
-                  }`}
-                >
-                  <span className="mr-1 text-lg">{moodItem.emoji}</span>
-                  <span>{moodItem.name}</span>
-                </Label>
-              </div>
-            ))}
-          </RadioGroup>
-        </div>
-
         <div className="space-y-2">
           <Label htmlFor="genre">Genre</Label>
           <Select value={genre || undefined} onValueChange={setGenre}>
@@ -202,6 +185,27 @@ const FilterPanel = ({ onFilterChange, onRatingTypeChange }: FilterPanelProps) =
               </SelectContent>
             </Select>
           </div>
+        </div>
+
+        <div className="space-y-3">
+          <Label>Moods</Label>
+          <ToggleGroup 
+            type="multiple" 
+            value={selectedMoods}
+            onValueChange={handleMoodsChange}
+            className="flex flex-wrap gap-2"
+          >
+            {moods.map((moodItem) => (
+              <ToggleGroupItem
+                key={moodItem.id}
+                value={moodItem.id}
+                className="flex items-center gap-1 px-3 py-2 data-[state=on]:bg-cinema-accent data-[state=on]:text-white"
+              >
+                <span>{moodItem.emoji}</span>
+                <span>{moodItem.name}</span>
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
         </div>
       </div>
 

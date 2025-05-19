@@ -2,15 +2,39 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FilmIcon, SearchIcon } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 interface HeaderProps {
   onSearch?: (query: string) => void;
+  selectedMoods?: string[];
 }
 
-const Header = ({ onSearch }: HeaderProps) => {
+const moods = [
+  { id: "happy", name: "Happy", emoji: "😊" },
+  { id: "crying", name: "Crying", emoji: "😢" },
+  { id: "excited", name: "Excited", emoji: "🤩" },
+  { id: "dark", name: "Dark", emoji: "🌑" },
+  { id: "feel-good", name: "Feel-good", emoji: "🥰" },
+];
+
+const Header = ({ onSearch, selectedMoods = [] }: HeaderProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   
+  // Update search query when selected moods change
+  useEffect(() => {
+    if (selectedMoods.length > 0) {
+      const moodNames = selectedMoods.map(id => 
+        moods.find(m => m.id === id)?.name
+      ).join(", ");
+      
+      setSearchQuery(`Mood: ${moodNames}`);
+      if (onSearch) {
+        onSearch(`Mood: ${moodNames}`);
+      }
+    }
+  }, [selectedMoods, onSearch]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (onSearch) {
@@ -29,7 +53,7 @@ const Header = ({ onSearch }: HeaderProps) => {
             </h1>
           </div>
           
-          <form onSubmit={handleSearch} className="flex w-full md:w-1/2 items-center gap-2">
+          <form onSubmit={handleSearch} className="flex w-full md:w-1/2 flex-col gap-2">
             <div className="relative flex-1">
               <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -40,7 +64,7 @@ const Header = ({ onSearch }: HeaderProps) => {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            <Button type="submit" variant="secondary">Search</Button>
+            <Button type="submit" variant="secondary" className="md:hidden">Search</Button>
           </form>
 
           <div className="flex items-center gap-2">

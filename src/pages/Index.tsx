@@ -15,6 +15,7 @@ const Index = () => {
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [ratingType, setRatingType] = useState<RatingType>("both");
+  const [selectedMoods, setSelectedMoods] = useState<string[]>([]);
 
   useEffect(() => {
     // Initial load toast
@@ -46,6 +47,13 @@ const Index = () => {
       filtered = filtered.filter(movie => 
         movie.vote_average >= filters.rating[0] && 
         movie.vote_average <= filters.rating[1]
+      );
+    }
+
+    // Filter by moods (if provided)
+    if (filters.moods && filters.moods.length > 0) {
+      filtered = filtered.filter(movie => 
+        movie.mood && filters.moods?.includes(movie.mood)
       );
     }
 
@@ -104,9 +112,13 @@ const Index = () => {
     setRatingType(type);
   };
 
+  const handleMoodSelect = (moods: string[]) => {
+    setSelectedMoods(moods);
+  };
+
   return (
     <div className="min-h-screen bg-cinema flex flex-col">
-      <Header onSearch={handleSearch} />
+      <Header onSearch={handleSearch} selectedMoods={selectedMoods} />
       
       <main className="flex-1 container mx-auto py-8 px-4">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -115,6 +127,7 @@ const Index = () => {
             <FilterPanel 
               onFilterChange={handleFilterChange} 
               onRatingTypeChange={handleRatingTypeChange}
+              onMoodSelect={handleMoodSelect}
             />
           </div>
           
